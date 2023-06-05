@@ -1,12 +1,8 @@
-from peewee import *
 # 一个示例插件
 
 def plugin(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_nickname, q_card, q_user_id, q_message_id, q_add_flag, q_add_comment, q_add_group_id, q_add_user_id, q_add_user_nickname, go_cqhttp_json):
     from main import start_thread, QQApi, Log
     if q_post_type == "message":
-        # 数据库信息
-        db = MySQLDatabase('qqbot', user='qqbot', password='QQbot.&BotQQ.114514', host='localhost', port=3306)
-
         # 权限指令：
         admin_id = ["3539757707"]
         if q_user_id in admin_id:
@@ -18,18 +14,8 @@ def plugin(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_nic
                 start_thread(func=QQApi.send,
                              args=(q_message_type, "测试中...", False, q_group_id, q_user_id, q_nickname))
                 start_thread(func=QQApi.send,
-                             args=(q_message_type, "(1\\2)消息发送正常", False, q_group_id, q_user_id, q_nickname))
-
-                # 检测数据库连接是否正常
-                try:
-                    db.connect()
-                    start_thread(func=QQApi.send,
-                                 args=(q_message_type, "(2\\2)数据库链接正常", False, q_group_id, q_user_id, q_nickname))
-                except Exception as e:
-                    start_thread(func=QQApi.send,
-                                 args=(q_message_type, "(2\\2)数据库连接异常请查看控制台查看报错", False, q_group_id, q_user_id, q_nickname))
-
-                    Log.error(q_message_type, "数据库连接错误：{}".format(e))
+                             args=(q_message_type, "(1\\1)消息发送正常", False, q_group_id, q_user_id, q_nickname))
+                
             if q_message == "运行状态":
                 status = start_thread(func=QQApi.get_status, args=())
                 statu_sent = status["data"]["stat"]["message_sent"]
