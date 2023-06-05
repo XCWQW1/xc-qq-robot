@@ -92,7 +92,7 @@ def start_thread(func, args):
 
     # 如果结果是异常对象，将异常信息打印出来
     if isinstance(result, Exception):
-        now_time_and_day = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+        now_time_and_day = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())
         log_file = f'errors/{now_time_and_day}.log'  # 日志文件名
         with open(log_file, 'a') as f_log:
             # 使用 traceback 模块打印完整的错误信息
@@ -436,7 +436,7 @@ async def connect_to_go_cqhttp_server():
 if __name__ == '__main__':
     class LogSP:
         now_time_and_day = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-        now_time_and_day_file = time.strftime('%Y-%m-%d%H-%M-%S', time.localtime())
+        now_time_and_day_file = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())
 
         @staticmethod
         def now_time():
