@@ -1,5 +1,5 @@
 from peewee import *
-
+# 一个示例插件
 
 def plugin(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_nickname, q_card, q_user_id, q_message_id, q_add_flag, q_add_comment, q_add_group_id, q_add_user_id, q_add_user_nickname, go_cqhttp_json):
     from main import start_thread, QQApi, Log
@@ -8,7 +8,7 @@ def plugin(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_nic
         db = MySQLDatabase('qqbot', user='qqbot', password='QQbot.&BotQQ.114514', host='localhost', port=3306)
 
         # 权限指令：
-        admin_id = ["1060524614", "3539757707"]
+        admin_id = ["3539757707"]
         if q_user_id in admin_id:
             if len(q_message) > 4 and q_message[:4] == "SAY ":
                 start_thread(func=QQApi.send,
@@ -45,24 +45,3 @@ def plugin(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_nic
             if len(q_message) > 4 and q_message[:4] == "SAY ":
                 start_thread(func=QQApi.send,
                              args=(q_message_type, "对不起，您没有权限执行当前指令", False, q_group_id, q_user_id, q_nickname))
-
-        # 随机表情包
-        if q_message == "随机表情":
-            start_thread(func=QQApi.send,
-                         args=(q_message_type, "[CQ:cardimage,file=http://192.168.5.244/api/packages/,cache=0]", False, q_group_id, q_user_id))
-
-
-"""    # 检测消息前是否带有触发词#
-    if len(q_message) > 1 and q_message[:1] == "#":
-
-        # 吧消息去除#后处理
-        x_message = q_message.split("#")[1]"""
-
-"""    # 点歌指令
-    if len(q_message) > 3 and q_message[:3] == "点歌 ":
-        request = requests.get(
-            url="http://localhost:3000/search?type=1&limit=10&keywords=" + q_message.split("点歌 ")[1]).text
-        json_music = json.loads(request)
-        music = str(json_music["result"]["songs"][0]["id"])
-        start_thread(func=QQApi.send,
-                     args=(q_message_type, f"[CQ:music,type=163,id={music}]", False, q_group_id, q_user_id))"""
