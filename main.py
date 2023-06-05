@@ -13,7 +13,7 @@ import traceback
 import importlib
 import websockets
 
-from colorama import init, Fore, Back, Style
+from colorama import init, Fore, Style
 
 # 初始化colorama
 init()
