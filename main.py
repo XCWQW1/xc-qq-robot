@@ -436,6 +436,7 @@ async def connect_to_go_cqhttp_server():
 if __name__ == '__main__':
     class LogSP:
         now_time_and_day = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+        now_time_and_day_file = time.strftime('%Y-%m-%d%H-%M-%S', time.localtime())
 
         @staticmethod
         def now_time():
@@ -447,7 +448,7 @@ if __name__ == '__main__':
         @staticmethod
         def save_log(logs):
             log_sp = LogSP()
-            with open(f'logs/{LogSP.now_time_and_day}.log', 'a') as f_0:
+            with open(f'logs/{LogSP.now_time_and_day_file}.log', 'a') as f_0:
                 f_0.write(f"{logs}\n")
 
         @staticmethod
