@@ -434,14 +434,6 @@ async def connect_to_go_cqhttp_server():
 
 
 if __name__ == '__main__':
-    # 监测配置文件夹是否存在
-    folders = ['logs']
-
-    for folder in folders:
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-
-
     class LogSP:
         now_time_and_day = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 
@@ -472,8 +464,9 @@ if __name__ == '__main__':
             print(logs)
             LogSP.save_log(logs)
 
+
     # 监测配置文件夹是否存在
-    folders = ['plugins', 'errors', 'config', 'logs']
+    folders = ['plugins', 'logs', 'errors', 'config']
 
     LogSP.initialize("正在监测配置文件夹是否存在")
     for folder in folders:
