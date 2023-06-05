@@ -448,6 +448,8 @@ if __name__ == '__main__':
         @staticmethod
         def save_log(logs):
             log_sp = LogSP()
+            if not os.path.exists('logs'):
+                os.mkdir('logs')
             with open(f'logs/{LogSP.now_time_and_day_file}.log', 'a') as f_0:
                 f_0.write(f"{logs}\n")
 
