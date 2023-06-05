@@ -434,6 +434,14 @@ async def connect_to_go_cqhttp_server():
 
 
 if __name__ == '__main__':
+    # 监测配置文件夹是否存在
+    folders = ['logs']
+
+    for folder in folders:
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+
     class LogSP:
         now_time_and_day = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 
@@ -464,25 +472,16 @@ if __name__ == '__main__':
             print(logs)
             LogSP.save_log(logs)
 
-
-    def initialize(initialize_txt):
-        log_sp = LogSP()
-        # 设置群日志内容
-        logs = f"[{log_sp.now_time()}] [初始] {initialize_txt}"
-        # 显示日志
-        print(logs)
-        LogSP.save_log(logs)
-
     # 监测配置文件夹是否存在
-    folders = ['plugins', 'logs', 'errors', 'config']
+    folders = ['plugins', 'errors', 'config', 'logs']
 
-    initialize("正在监测配置文件夹是否存在")
+    LogSP.initialize("正在监测配置文件夹是否存在")
     for folder in folders:
         if not os.path.exists(folder):
             os.makedirs(folder)
-            initialize(f'文件夹 {folder} 不存在，已自动创建')
+            LogSP.initialize(f'文件夹 {folder} 不存在，已自动创建')
         else:
-            initialize(f'文件夹 {folder} 已经存在')
+            LogSP.initialize(f'文件夹 {folder} 已经存在')
 
     # 配置文件路径
     config_path = "config/config.ini"
@@ -497,13 +496,13 @@ if __name__ == '__main__':
         config.set("go-cqhttp", "http_api_port", "5700")
         with open(config_path, "w") as f:
             config.write(f)
-        initialize(f'配置文件 {config_path} 不存在，已自动创建')
-        initialize("已关闭程序，请重新启动以加载配置")
+        LogSP.initialize(f'配置文件 {config_path} 不存在，已自动创建')
+        LogSP.initialize("已关闭程序，请重新启动以加载配置")
         sys.exit(0)
     else:
-        initialize(f'配置文件 {config_path} 已经存在')
+        LogSP.initialize(f'配置文件 {config_path} 已经存在')
 
-    initialize("正在连接go-cqhttp的websocket服务...")
+    LogSP.initialize("正在连接go-cqhttp的websocket服务...")
 
     # 设置Ctrl+C的信号处理函数
     def signal_handler(sig, frame):
