@@ -5,18 +5,14 @@ import signal
 import sys
 import time
 import json
-import queue
 import asyncio
-import requests
-import threading
-import traceback
+
 import importlib
 import websockets
 
-from colorama import init, Fore, Style
-
-# 初始化colorama
-init()
+from API.api_log import Log, LogSP
+from API.api_qq import QQApi
+from API.api_thread import start_thread
 
 
 def list_plugins():
@@ -65,148 +61,6 @@ def parse_cq_codes(cq):
     return result
 
 
-def start_thread(func, args):
-    # 创建一个队列对象
-    result_queue = queue.Queue()
-
-    # 在新线程中执行函数，并将结果存入队列中
-    def thread_func():
-        try:
-            thread_result = func(*args)
-            result_queue.put(thread_result)
-        except Exception as e:
-            result_queue.put(e)
-
-    # 创建新线程
-    t = threading.Thread(target=thread_func)
-
-    # 设置线程为守护线程
-    t.setDaemon(True)
-
-    # 启动线程
-    t.start()
-
-    # 等待线程执行完成，并获取结果
-    t.join()
-    result = result_queue.get()
-
-    # 如果结果是异常对象，将异常信息打印出来
-    if isinstance(result, Exception):
-        now_time_and_day = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())
-        log_file = f'errors/{now_time_and_day}.log'  # 日志文件名
-        with open(log_file, 'a') as f_log:
-            # 使用 traceback 模块打印完整的错误信息
-            trace = ''.join(traceback.format_exception(type(result), result, result.__traceback__))
-            # 设置日志内容
-            logs = f"[{Log.now_time()}] [错误] [线] {trace}"
-            # 显示日志
-            print(logs)
-            f_log.write(f"子线程执行出错: {trace}\n")
-        return None
-
-    # 返回结果
-    return result
-
-
-class Log:
-    @staticmethod
-    def now_time():
-        # 当前时间获取
-        current_time = time.time()
-        now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(current_time))
-        return now_time
-
-    @staticmethod
-    def initialize(initialize_txt):
-        # 设置群日志内容
-        logs = f"[{Log.now_time()}] [初始] {initialize_txt}"
-        # 显示日志
-        print(logs)
-        LogSP.save_log(logs)
-
-    # @是防止第一个变量输入为self
-    # 正常信息
-    @staticmethod
-    def accepted_info(q_message_type, q_message, q_group_id, q_nickname, q_card, q_user_id, q_message_id, q_group_name):
-        # 判断私聊还是群发
-        if q_message_type == "group":
-            # 设置群日志内容
-            logs = f"[{Log.now_time()}] [信息] [群] [接收] [{q_group_name}({q_group_id})] [{q_nickname}-{q_user_id}({q_card})] : {q_message} ({q_message_id})"
-            # 显示日志
-            print(logs)
-            LogSP.save_log(logs)
-        elif q_message_type == "private":
-            # 设置群日志内容
-            logs = f"[{Log.now_time()}] [信息] [私] [接收] [{q_nickname}-{q_user_id}] : {q_message} ({q_message_id})"
-            # 显示日志
-            print(logs)
-            LogSP.save_log(logs)
-
-    # 错误信息
-    @staticmethod
-    def error(q_message_type, error_txt):
-        if q_message_type == "group":
-            # 设置日志内容
-            logs = Fore.RED + f"[{Log.now_time()}] [错误] [群] {error_txt}" + Style.RESET_ALL
-            # 显示日志
-            print(logs)
-            LogSP.save_log(logs)
-        elif q_message_type == "private":
-            # 设置日志内容
-            logs = Fore.RED + f"[{Log.now_time()}] [错误] [私] {error_txt}" + Style.RESET_ALL
-            # 显示日志
-            print(logs)
-            LogSP.save_log(logs)
-
-        elif q_message_type == "error":
-            # 设置日志内容
-            logs = Fore.RED + f"[{Log.now_time()}] [错误] {error_txt}" + Style.RESET_ALL
-            # 显示日志
-            print(logs)
-            LogSP.save_log(logs)
-
-    # 发送 信息
-    @staticmethod
-    def send(send_msg, q_message_type, q_group_id="", q_message_id="", q_group_name="", q_user_name="", q_user_id=""):
-        # 判断私聊还是群发
-        if q_message_type == "group":
-            # 设置日志内容
-            logs = f"[{Log.now_time()}] [信息] [群] [发送] {send_msg} ({q_message_id}) -> [{q_group_name}({q_group_id})] "
-            # 显示日志
-            print(logs)
-            LogSP.save_log(logs)
-        elif q_message_type == "private":
-            # 设置日志内容
-            logs = f"[{Log.now_time()}] [信息] [私] [发送] {send_msg} ({q_message_id}) -> [{q_user_name}({q_user_id})] "
-            # 显示日志
-            print(logs)
-            LogSP.save_log(logs)
-
-    # 撤回 群信息
-    @staticmethod
-    def del_msg(q_message_type, q_user_id="", q_message_id="", q_group_name="", q_user_name=""):
-        if q_message_type == "group":
-            # 设置日志内容
-            logs = f"[{Log.now_time()}] [信息] [群] [撤回] [{q_message_id}] ({q_message_id}) -> [{q_group_name}({q_user_id})] "
-            # 显示日志
-            print(logs)
-            LogSP.save_log(logs)
-        elif q_message_type == "private":
-            # 设置日志内容
-            logs = f"[{Log.now_time()}] [信息] [私] [撤回] [{q_message_id}] ({q_message_id}) -> [{q_user_name}({q_user_id})] "
-            # 显示日志
-            print(logs)
-            LogSP.save_log(logs)
-
-    @staticmethod
-    def accepted_group_add_request(q_add_flag, q_add_comment, q_add_group_id, q_add_user_id, q_add_user_nickname):
-        # 设置群日志内容
-        logs = f"[{Log.now_time()}] [加群] 群：[{QQApi.get_group(q_add_group_id)}({q_add_group_id})] 用户：[{q_add_user_nickname}({q_add_user_id})] 验证信息：{q_add_comment} flag：{q_add_flag}"
-        # 显示日志
-        print(logs)
-        LogSP.save_log(logs)
-
-
 def load_config():
     # 配置文件路径
     c_config_path = "config/config.ini"
@@ -241,109 +95,6 @@ if os.path.exists(config_path):
     http_api_http_api_ip = config.get("go-cqhttp", "http_api_ip")
     http_api_http_api_port = config.get("go-cqhttp", "http_api_port")
     cqhttp_url = F"http://{http_api_http_api_ip}:{http_api_http_api_port}/"
-
-
-class QQApi:
-    # 发送消息
-    @staticmethod
-    def send(q_message_type, send_msg, auto_escape, q_group_id="", q_user_id="", q_user_name=""):
-        if q_message_type == "group":
-            # 发送信息
-            response = requests.get(
-                url=cqhttp_url + f"send_msg?group_id={q_group_id}&message={send_msg}&auto_escape={auto_escape}").text
-
-            # 转换返回的json为python格式
-            json_send = json.loads(response)
-
-            # 取消息ID
-            if json_send["status"] == "failed":
-                q_message_id = ''
-            else:
-                q_message_id = str(json_send.get("data", {}).get("message_id", ""))
-
-            # 判断消息是否发送成功
-            if json_send["status"] == "ok":
-                # 取群名称
-                q_group_name = QQApi.get_group(q_group_id)
-
-                # 发送日志
-                start_thread(func=Log.send,
-                             args=(send_msg, q_message_type, q_group_id, q_message_id, q_group_name, q_user_id, ))
-
-            else:
-                start_thread(func=Log.error,
-                             args=(q_message_type, "消息发送失败，可能消息过长也可能是被腾讯吞了或者帐号被冻结"))
-                requests.get(url=cqhttp_url + f"send_msg?group_id={q_group_id}&message=消息发送失败")
-
-            # 返回消息ID
-            return q_message_id
-        elif q_message_type == "private":
-            # 发送信息
-            response = requests.get(
-                url=cqhttp_url + f"send_msg?user_id={q_user_id}&message={send_msg}&auto_escape={auto_escape}").text
-
-            # 吧json转换为python格式
-            json_send = json.loads(response)
-
-            # 判断类是否存在 存在则吧变量设置为类的值 不存在则设置为空
-            # 取消息ID
-            q_message_id = str(json_send.get("data", {}).get("message_id", ""))
-
-            # 判断消息是否发送成功
-            if json_send["status"] == "ok":
-                # 发送日志
-                start_thread(func=Log.send,
-                             args=(send_msg, q_message_type, q_group_id, q_message_id, q_user_name, q_user_id))
-            else:
-                start_thread(func=Log.error,
-                             args=(q_message_type, "消息发送失败，可能被腾讯吞了或者帐号被冻结"))
-
-    # 取群信息
-    @staticmethod
-    def get_group(q_group_id):
-        response = requests.get(url=cqhttp_url + f"get_group_info?group_id={q_group_id}").text
-        json_send = json.loads(response)
-        return json_send["data"]["group_name"]
-
-    # 撤回信息
-    @staticmethod
-    def del_msg(q_message_id):
-        request = requests.get(url=cqhttp_url + f"delete_msg?message_id={q_message_id}").json()
-        return request["status"]
-
-    # 取用户信息
-    @staticmethod
-    def get_user_nickname(q_user_id):
-        response = requests.get(url=cqhttp_url + f"get_stranger_info?user_id={q_user_id}&no_cache=true").text
-        json_send = json.loads(response)
-        q_user_name = json_send["data"]["nickname"]
-        return q_user_name
-
-    @staticmethod
-    def get_user_group_card(q_user_id, q_group_id):
-        response = requests.get(url=cqhttp_url + f"get_group_member_info?group_id={q_group_id}&user_id={q_user_id}&no_cache=false").text
-        json_send = json.loads(response)
-        q_user_group_card = ""
-        if json_send["data"]["card"]:
-            q_user_group_card = json_send["data"]["card"]
-        else:
-            start_thread(func=QQApi.get_user_nickname, args=(q_user_id,))
-        return q_user_group_card
-
-    # 取运行状态
-    @staticmethod
-    def get_status():
-        response = requests.get(url=cqhttp_url + "get_status").json()
-        return response
-
-    @staticmethod
-    def set_group_add_request(q_add_type, q_add_flag, q_add_approve, q_add_reason=''):
-        request = requests.get(url=cqhttp_url + f"set_group_add_request?flag={q_add_flag}&approve={q_add_approve}&type={q_add_type}&reason={q_add_reason}").json()
-        return request
-
-    @staticmethod
-    def set_group_ban(q_group_id, q_user_id, duration):
-        request = requests.get(url=cqhttp_url + f"set_group_ban?group_id={q_group_id}&user_id={q_user_id}&duration={duration}")
 
 
 def process_message(data):
@@ -434,40 +185,6 @@ async def connect_to_go_cqhttp_server():
 
 
 if __name__ == '__main__':
-    class LogSP:
-        now_time_and_day = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-        now_time_and_day_file = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())
-
-        @staticmethod
-        def now_time():
-            # 当前时间获取
-            current_time = time.time()
-            now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(current_time))
-            return now_time
-
-        @staticmethod
-        def save_log(logs):
-            log_sp = LogSP()
-            if not os.path.exists('logs'):
-                os.mkdir('logs')
-            with open(f'logs/{LogSP.now_time_and_day_file}.log', 'a') as f_0:
-                f_0.write(f"{logs}\n")
-
-        @staticmethod
-        def print_log(logs):
-            print(logs)
-            LogSP.save_log(logs)
-
-        @staticmethod
-        def initialize(initialize_txt):
-            log_sp = LogSP()
-            # 设置群日志内容
-            logs = f"[{log_sp.now_time()}] [初始] {initialize_txt}"
-            # 显示日志
-            print(logs)
-            LogSP.save_log(logs)
-
-
     # 监测配置文件夹是否存在
     folders = ['plugins', 'logs', 'errors', 'config']
 
