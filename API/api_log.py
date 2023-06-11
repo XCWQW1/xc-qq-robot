@@ -1,6 +1,7 @@
 import os
 import time
 
+from API.api_cq import cq_replace
 from colorama import init, Fore, Style
 
 # 初始化colorama
@@ -134,7 +135,7 @@ class Log:
     def accepted_group_add_request(q_add_flag, q_add_comment, q_add_group_id, q_add_user_id, q_add_user_nickname):
         from API.api_qq import QQApi
         # 设置群日志内容
-        logs = f"[{Log.now_time()}] [加群] 群：[{QQApi.get_group(q_add_group_id)}({q_add_group_id})] 用户：[{q_add_user_nickname}({q_add_user_id})] 验证信息：{q_add_comment} flag：{q_add_flag}"
+        logs = f"[{Log.now_time()}] [信息] [加群] 群：[{QQApi.get_group(q_add_group_id)}({q_add_group_id})] 用户：[{q_add_user_nickname}({q_add_user_id})] 验证信息：{q_add_comment} flag：{q_add_flag}"
         # 显示日志
         print(logs)
         LogSP.save_log(logs)
