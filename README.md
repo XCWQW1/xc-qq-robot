@@ -1,10 +1,3 @@
-<a href="https://gitmoji.dev">
-  <img
-    src="https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square"
-    alt="Gitmoji"
-  />
-</a>
-
 # xc-qq-robot
 
 一个python萌新写的对接go-cqhttp的屎山玩意
