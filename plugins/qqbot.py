@@ -1,6 +1,7 @@
 # 一个示例插件
 
-def plugin(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_nickname, q_card, q_user_id, q_message_id, q_add_flag, q_add_comment, q_add_group_id, q_add_user_id, q_add_user_nickname, go_cqhttp_json):
+
+def plugin(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_group_name, q_nickname, q_card, q_user_id, q_message_id, q_add_flag, q_add_comment, q_add_group_id, q_add_user_id, q_add_user_nickname, go_cqhttp_json):
     from API.api_log import Log
     from API.api_qq import QQApi
     from API.api_thread import start_thread

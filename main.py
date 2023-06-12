@@ -148,7 +148,10 @@ def process_message(data):
     # 处理机器人功能
     # 遍历插件目录
     for plugin in plugin_list:
-        start_thread(func=plugin, args=(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_nickname, q_card, q_user_id, q_message_id, q_add_flag, q_add_comment, q_all_group_id, q_all_user_id, q_all_user_nickname, data))
+        try:
+            start_thread(func=plugin, args=(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_group_name, q_nickname, q_card, q_user_id, q_message_id, q_add_flag, q_add_comment, q_all_group_id, q_all_user_id, q_all_user_nickname, data))
+        except Exception as e:
+            Log.error(q_message_type, f"调用插件 {plugin} 报错：{e}")
 
 
 async def connect_to_go_cqhttp_server():
