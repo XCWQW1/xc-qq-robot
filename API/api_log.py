@@ -57,6 +57,14 @@ class Log:
         print(logs)
         LogSP.save_log(logs)
 
+    @staticmethod
+    def diy_log(log_type, log_content):
+        # 设置群日志内容
+        logs = f"[{Log.now_time()}] [{log_type}] {log_content}"
+        # 显示日志
+        print(logs)
+        LogSP.save_log(logs)
+
     # @是防止第一个变量输入为self
     # 正常信息
     @staticmethod
