@@ -124,4 +124,3 @@ class QQApi:
 
     @staticmethod
     def set_group_ban(q_group_id, q_user_id, duration):
-
