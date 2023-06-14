@@ -176,5 +176,4 @@ class QQApi:
         @param duration:禁言时长
         @return:
         """
-        request = requests.get(
-            url=cqhttp_url + f"set_group_ban?group_id={q_group_id}&user_id={q_user_id}&duration={duration}")
+        request = requests.get(url=cqhttp_url + f"set_group_ban?group_id={q_group_id}&user_id={q_user_id}&duration={duration}")
