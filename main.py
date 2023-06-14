@@ -19,6 +19,7 @@ from init.main_init import main_init
 def list_plugins():
     # 插件列表
     p_plugin_list = []
+    p_name_list = []
     Log.initialize("检测插件中")
 
     # 遍历插件目录，将所有插件模块动态导入并保存到列表中
@@ -42,9 +43,10 @@ def list_plugins():
 
         # 将插件函数添加到列表中
         p_plugin_list.append(module.plugin)
+        p_name_list.append(name)
         Log.initialize(f"检测到插件：{name}")
 
-    return p_plugin_list
+    return p_plugin_list, p_name_list
 
 
 def parse_cq_codes(cq):
@@ -125,17 +127,21 @@ def process_message(data):
     sub_type = ["add", "invite", "approve", "invite", "leave", "kick", "kick_me"]
 
     if q_sub_type in sub_type:
-        q_add_flag = str(data.get("flag", ""))
-        q_add_comment = str(data.get("comment", ""))
-        q_all_user_id = str(data.get("user_id", ""))
-        q_all_group_id = str(data.get("group_id", ""))
-        q_all_user_nickname = str(QQApi.get_user_nickname(q_user_id=q_all_user_id))
+        q_group_member_flag = str(data.get("flag", ""))
+        q_group_member_comment = str(data.get("comment", ""))
+        q_group_member_user_id = str(data.get("user_id", ""))
+        q_group_member_group_id = str(data.get("group_id", ""))
+        q_group_member_user_nickname = str(QQApi.get_user_nickname(q_user_id=q_group_member_user_id))
+        q_group_member_operator_id = str(data.get("operator_id", ""))
+        q_group_member_operator_nickname = str(QQApi.get_user_nickname(q_user_id=q_group_member_operator_id))
     else:
-        q_add_flag = ""
-        q_add_comment = ""
-        q_all_user_id = ""
-        q_all_group_id = ""
-        q_all_user_nickname = ""
+        q_group_member_flag = ""
+        q_group_member_comment = ""
+        q_group_member_user_id = ""
+        q_group_member_group_id = ""
+        q_group_member_user_nickname = ""
+        q_group_member_operator_id = ""
+        q_group_member_operator_nickname = ""
 
     # 发送消息日志
     if q_post_type == "message":
@@ -143,15 +149,22 @@ def process_message(data):
                      args=(q_message_type, q_message, q_group_id, q_nickname, q_card, q_user_id, q_message_id, q_group_name))
     elif "sub_type" in data and data["sub_type"] == "add":
         start_thread(func=Log.accepted_group_add_request,
-                     args=(q_add_flag, q_add_comment, q_all_group_id, q_all_user_id, q_all_user_nickname))
+                     args=(q_group_member_flag, q_group_member_comment, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname))
+    elif q_sub_type == "kick":
+        start_thread(func=Log.group_kick,
+                     args=(q_sub_type, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname, q_group_member_operator_id, q_group_member_user_nickname))
+    elif q_sub_type == "leave":
+        start_thread(func=Log.group_leave,
+                     args=(q_sub_type, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname))
 
     # 处理机器人功能
     # 遍历插件目录
-    for plugin in plugin_list:
+    for plugin, name in zip(plugin_list, name_list):
         try:
-            start_thread(func=plugin, args=(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_group_name, q_nickname, q_card, q_user_id, q_message_id, q_add_flag, q_add_comment, q_all_group_id, q_all_user_id, q_all_user_nickname, data))
+            if name != "qqbot_java":
+                start_thread(func=plugin, args=(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_group_name, q_nickname, q_card, q_user_id, q_message_id, q_group_member_flag, q_group_member_comment, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname, q_group_member_operator_id, q_group_member_operator_nickname, data))
         except Exception as e:
-            Log.error("error", f"调用插件 {plugin} 报错：{e}")
+            Log.error("error", f"调用插件 {name_list} 报错：{e}")
 
 
 async def connect_to_go_cqhttp_server():
@@ -203,7 +216,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
 
     go_cqhttp_ws_websocket_ip, go_cqhttp_ws_websocket_port, go_cqhttp_http_api_http_api_ip, go_cqhttp_http_api_http_api_port = load_config()
-    plugin_list = list_plugins()
+    plugin_list, name_list = list_plugins()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(connect_to_go_cqhttp_server())
 

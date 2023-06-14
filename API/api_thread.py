@@ -17,17 +17,21 @@ def start_thread(func, args):
         except Exception as e:
             result_queue.put(e)
 
-    # 创建新线程
-    t = threading.Thread(target=thread_func)
+    try:
+        # 创建新线程
+        t = threading.Thread(target=thread_func)
 
-    # 设置线程为守护线程
-    t.setDaemon(True)
+        # 设置线程为守护线程
+        t.setDaemon(True)
 
-    # 启动线程
-    t.start()
+        # 启动线程
+        t.start()
 
-    # 等待线程执行完成，并获取结果
-    t.join()
+        # 等待线程执行完成，并获取结果
+        t.join()
+    except Exception as e:
+        Log.error("error", f"多线程报错：{e}")
+
     result = result_queue.get()
 
     # 如果结果是异常对象，将异常信息打印出来
