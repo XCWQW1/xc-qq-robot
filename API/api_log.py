@@ -147,3 +147,23 @@ class Log:
         # 显示日志
         print(logs)
         LogSP.save_log(logs)
+
+    @staticmethod
+    def group_leave(q_sub_type, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname):
+        from API.api_qq import QQApi
+        if q_sub_type == "leave":
+            # 设置群日志内容
+            logs = f"[{Log.now_time()}] [信息] [退群] 群：[{QQApi.get_group(q_group_member_group_id)}({q_group_member_group_id})] 用户：[{q_group_member_user_nickname}({q_group_member_user_id})]"
+            # 显示日志
+            print(logs)
+            LogSP.save_log(logs)
+
+    @staticmethod
+    def group_kick(q_sub_type, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname, q_group_member_operator_id, q_group_member_operator_nickname):
+        from API.api_qq import QQApi
+        if q_sub_type == "kick":
+            # 设置群日志内容
+            logs = f"[{Log.now_time()}] [信息] [踢出] 群：[{QQApi.get_group(q_group_member_group_id)}({q_group_member_group_id})] 踢出用户：[{q_group_member_user_nickname}({q_group_member_user_id})] 操作用户：[{q_group_member_operator_nickname}({q_group_member_operator_id})]"
+            # 显示日志
+            print(logs)
+            LogSP.save_log(logs)

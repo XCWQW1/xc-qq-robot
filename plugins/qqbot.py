@@ -1,8 +1,7 @@
 # 一个示例插件
 
 
-def plugin(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_group_name, q_nickname, q_card, q_user_id, q_message_id, q_add_flag, q_add_comment, q_add_group_id, q_add_user_id, q_add_user_nickname, go_cqhttp_json):
-    from API.api_log import Log
+def plugin(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_group_name, q_nickname, q_card, q_user_id, q_message_id, q_group_member_flag, q_group_member_comment, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname, q_group_member_operator_id, q_group_member_operator_nickname, go_cqhttp_json):
     from API.api_qq import QQApi
     from API.api_thread import start_thread
     if q_post_type == "message":
