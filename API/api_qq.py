@@ -39,8 +39,7 @@ class QQApi:
         from API.api_thread import start_thread
         if q_message_type == "group":
             # 发送信息
-            response = requests.get(
-                url=cqhttp_url + f"send_msg?group_id={q_group_id}&message={send_msg}&auto_escape={auto_escape}").text
+            response = requests.get(url=cqhttp_url + f"send_msg?group_id={q_group_id}&message={send_msg}&auto_escape={auto_escape}").text
 
             # 转换返回的json为python格式
             json_send = json.loads(response)
@@ -69,8 +68,7 @@ class QQApi:
             return q_message_id
         elif q_message_type == "private":
             # 发送信息
-            response = requests.get(
-                url=cqhttp_url + f"send_msg?user_id={q_user_id}&message={send_msg}&auto_escape={auto_escape}").text
+            response = requests.get(url=cqhttp_url + f"send_msg?user_id={q_user_id}&message={send_msg}&auto_escape={auto_escape}").text
 
             # 吧json转换为python格式
             json_send = json.loads(response)
@@ -133,8 +131,7 @@ class QQApi:
         @return:
         """
         from API.api_thread import start_thread
-        response = requests.get(
-            url=cqhttp_url + f"get_group_member_info?group_id={q_group_id}&user_id={q_user_id}&no_cache=false").text
+        response = requests.get(url=cqhttp_url + f"get_group_member_info?group_id={q_group_id}&user_id={q_user_id}&no_cache=false").text
         json_send = json.loads(response)
         q_user_group_card = ""
         if json_send["data"]["card"]:
@@ -163,8 +160,7 @@ class QQApi:
         @param q_add_reason:拒绝理由
         @return:
         """
-        request = requests.get(
-            url=cqhttp_url + f"set_group_add_request?flag={q_add_flag}&approve={q_add_approve}&type={q_add_type}&reason={q_add_reason}").json()
+        request = requests.get(url=cqhttp_url + f"set_group_add_request?flag={q_add_flag}&approve={q_add_approve}&type={q_add_type}&reason={q_add_reason}").json()
         return request
 
     @staticmethod
