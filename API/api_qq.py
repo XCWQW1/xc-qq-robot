@@ -124,4 +124,4 @@ class QQApi:
 
     @staticmethod
     def set_group_ban(q_group_id, q_user_id, duration):
-        request = requests.get(url=cqhttp_url + f"set_group_ban?group_id={q_group_id}&user_id={q_user_id}&duration={duration}")
+
