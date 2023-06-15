@@ -203,7 +203,6 @@ class CQApi:
         """
         有关 Bot 账号的相关 API
         """
-
         @staticmethod
         def get_login_info():
             """
@@ -288,7 +287,6 @@ class CQApi:
         """
         图片相关 API
         """
-
         @staticmethod
         def get_image(file: str):
             """
