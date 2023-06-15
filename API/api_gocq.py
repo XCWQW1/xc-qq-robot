@@ -203,7 +203,6 @@ class CQApi:
         """
         有关 Bot 账号的相关 API
         """
-
         @staticmethod
         def get_login_info():
             """
@@ -320,5 +319,33 @@ class CQApi:
                 'image': image,
             }
             url = cqhttp_url + ".ocr_image?" + urlencode(params)
+            response = requests.get(url=url)
+            return response.text
+
+    class Voice:
+        """
+        语音相关 API
+        """
+        @staticmethod
+        def get_record(file: str, out_format: str):
+            """
+            获取语音
+            @param file:收到的语音文件名（消息段的 file 参数）, 如 0B38145AA44505000B38145AA4450500.silk
+            @param out_format:要转换到的格式, 目前支持 mp3、amr、wma、m4a、spx、ogg、wav、flac
+            """
+            params = {
+                'file': file,
+                'out_format': out_format,
+            }
+            url = cqhttp_url + "get_record?" + urlencode(params)
+            response = requests.get(url=url)
+            return response.text
+
+        @staticmethod
+        def can_send_record():
+            """
+            检查是否可以发送语音
+            """
+            url = cqhttp_url + "can_send_record"
             response = requests.get(url=url)
             return response.text
