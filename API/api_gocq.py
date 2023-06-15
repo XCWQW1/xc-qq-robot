@@ -24,6 +24,10 @@ if os.path.exists(config_path):
 
 class CQApi:
     class Message:
+        """
+        有关消息操作的 API
+        """
+
         @staticmethod
         def send_private_msg(user_id: int, group_id: int, message: str, auto_escape: bool = False):
             """
@@ -192,5 +196,90 @@ class CQApi:
                 'group_id': group_id,
             }
             url = cqhttp_url + "get_group_msg_history?" + urlencode(params)
+            response = requests.get(url=url)
+            return response.text
+
+    class Bot:
+        """
+        有关 Bot 账号的相关 API
+        """
+
+        @staticmethod
+        def get_login_info():
+            """
+            获取登录号信息
+            """
+            url = cqhttp_url + "get_login_info"
+            response = requests.get(url=url)
+            return response.text
+
+        @staticmethod
+        def set_qq_profile(nickname: str, company: str, email: str, college: str, personal_note: str):
+            """
+            设置登录号资料
+            @param nickname:名称
+            @param company:公司
+            @param email:邮箱
+            @param college:学校
+            @param personal_note:个人说明
+            """
+            params = {
+                'nickname': nickname,
+                'company': company,
+                'email': email,
+                'college': college,
+                'personal_note': personal_note,
+            }
+            url = cqhttp_url + "set_qq_profile?" + urlencode(params)
+            response = requests.get(url=url)
+            return response.text
+
+        @staticmethod
+        def qidian_get_account_info():
+            """
+            获取企点账号信息，该API只有企点协议可用
+            """
+            url = cqhttp_url + "qidian_get_account_info"
+            response = requests.get(url=url)
+            return response.text
+
+        @staticmethod
+        def _get_model_show(model: str):
+            """
+            获取在线机型
+            @param model:机型名称
+            """
+            params = {
+                'model': model,
+            }
+            url = cqhttp_url + "_get_model_show?" + urlencode(params)
+            response = requests.get(url=url)
+            return response.text
+
+        @staticmethod
+        def _set_model_show(model: str, model_show: str):
+            """
+            设置在线机型
+            @param model:机型名称
+            @param model_show:
+            """
+            params = {
+                'model': model,
+                'model_show': model_show,
+            }
+            url = cqhttp_url + "_set_model_show?" + urlencode(params)
+            response = requests.get(url=url)
+            return response.text
+
+        @staticmethod
+        def get_online_clients(no_cache: bool):
+            """
+            获取当前账号在线客户端列表
+            @param no_cache:是否无视缓存
+            """
+            params = {
+                'no_cache': no_cache,
+            }
+            url = cqhttp_url + "get_online_clients?" + urlencode(params)
             response = requests.get(url=url)
             return response.text
