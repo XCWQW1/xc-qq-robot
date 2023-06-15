@@ -283,3 +283,42 @@ class CQApi:
             url = cqhttp_url + "get_online_clients?" + urlencode(params)
             response = requests.get(url=url)
             return response.text
+
+    class Image:
+        """
+        图片相关 API
+        """
+        @staticmethod
+        def get_image(file: str):
+            """
+            获取图片信息
+            @param file:图片缓存文件名
+            """
+            params = {
+                'file': file,
+            }
+            url = cqhttp_url + "get_image?" + urlencode(params)
+            response = requests.get(url=url)
+            return response.text
+
+        @staticmethod
+        def can_send_image():
+            """
+            检查是否可以发送图片
+            """
+            url = cqhttp_url + "can_send_image"
+            response = requests.get(url=url)
+            return response.text
+
+        @staticmethod
+        def ocr_image(image: str):
+            """
+            图片 OCR
+            @param image:图片ID
+            """
+            params = {
+                'image': image,
+            }
+            url = cqhttp_url + ".ocr_image?" + urlencode(params)
+            response = requests.get(url=url)
+            return response.text
