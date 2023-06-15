@@ -106,8 +106,7 @@ def process_message(data, plugin_list, name_list):
     # 遍历插件目录
     for plugin, name in zip(plugin_list, name_list):
         try:
-            if name != "qqbot_java":
-                start_thread(func=plugin, args=(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_group_name, q_nickname, q_card, q_user_id, q_message_id, q_group_member_flag, q_group_member_comment, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname, q_group_member_operator_id, q_group_member_operator_nickname, data))
+            start_thread(func=plugin, args=(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_group_name, q_nickname, q_card, q_user_id, q_message_id, q_group_member_flag, q_group_member_comment, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname, q_group_member_operator_id, q_group_member_operator_nickname, data))
         except Exception as e:
             Log.error("error", f"调用插件 {name_list} 报错：{e}")
 
