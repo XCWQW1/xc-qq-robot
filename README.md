@@ -35,7 +35,7 @@
     - 详见go-cqhttp官方文档(https://docs.go-cqhttp.org/guide/quick_start.html)
   
 - ### 4, 编写插件
- - >示例的插件 qqbot.py、qqbot_http_api.py 
+	- >示例的插件 qqbot.py、qqbot_http_api.py 
 - ### 5, 启动
     -  ```python main.py``` 
 	
