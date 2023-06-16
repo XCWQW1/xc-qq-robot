@@ -37,9 +37,11 @@ class QQApi:
         """
         from API.api_log import Log
         from API.api_thread import start_thread
+        import urllib.parse
+        z_send_msg = urllib.parse.quote(send_msg)
         if q_message_type == "group":
             # 发送信息
-            response = requests.get(url=cqhttp_url + f"send_msg?group_id={q_group_id}&message={send_msg}&auto_escape={auto_escape}").text
+            response = requests.get(url=cqhttp_url + f"send_msg?group_id={q_group_id}&message={z_send_msg}&auto_escape={auto_escape}").text
 
             # 转换返回的json为python格式
             json_send = json.loads(response)
@@ -68,7 +70,7 @@ class QQApi:
             return q_message_id
         elif q_message_type == "private":
             # 发送信息
-            response = requests.get(url=cqhttp_url + f"send_msg?user_id={q_user_id}&message={send_msg}&auto_escape={auto_escape}").text
+            response = requests.get(url=cqhttp_url + f"send_msg?user_id={q_user_id}&message={z_send_msg}&auto_escape={auto_escape}").text
 
             # 吧json转换为python格式
             json_send = json.loads(response)

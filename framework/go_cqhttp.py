@@ -10,6 +10,8 @@ from API.api_log import Log
 from API.api_qq import QQApi
 from API.api_thread import start_thread
 
+# from main_plugin.main_plugin_admin import m_plugin_admin
+
 
 def load_config():
     # 配置文件路径
@@ -24,8 +26,9 @@ def load_config():
     c_ws_websocket_port = c_config.get("go-cqhttp", "websocket_port")
     c_http_api_http_api_ip = c_config.get("go-cqhttp", "http_api_ip")
     c_http_api_http_api_port = c_config.get("go-cqhttp", "http_api_port")
+    c_plugin_admin = str(c_config.get("plugin_admin", "admin_qq"))
 
-    return c_ws_websocket_ip, c_ws_websocket_port, c_http_api_http_api_ip, c_http_api_http_api_port
+    return c_ws_websocket_ip, c_ws_websocket_port, c_http_api_http_api_ip, c_http_api_http_api_port, c_plugin_admin
 
 
 def parse_cq_codes(cq):
@@ -103,13 +106,13 @@ def process_message(data, plugin_list, name_list):
                      args=(q_sub_type, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname))
 
     # 处理机器人功能
+    # unload_plugin = start_thread(func=m_plugin_admin, args=(plugin_admin, name_list, q_post_type, q_message_type, q_message, q_group_id, q_user_id, q_message_id))
     # 遍历插件目录
     for plugin, name in zip(plugin_list, name_list):
         try:
-            if name != "qqbot_java":
-                start_thread(func=plugin, args=(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_group_name, q_nickname, q_card, q_user_id, q_message_id, q_group_member_flag, q_group_member_comment, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname, q_group_member_operator_id, q_group_member_operator_nickname, data))
+            start_thread(func=plugin, args=(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_group_name, q_nickname, q_card, q_user_id, q_message_id, q_group_member_flag, q_group_member_comment, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname, q_group_member_operator_id, q_group_member_operator_nickname, data))
         except Exception as e:
-            Log.error("error", f"调用插件 {name_list} 报错：{e}")
+            Log.error("error", f"调用插件 {name} 报错：{e}")
 
 
 async def connect_to_go_cqhttp_server():
@@ -146,4 +149,4 @@ async def connect_to_go_cqhttp_server():
 
 
 if __import__:
-    go_cqhttp_ws_websocket_ip, go_cqhttp_ws_websocket_port, go_cqhttp_http_api_http_api_ip, go_cqhttp_http_api_http_api_port = load_config()
+    go_cqhttp_ws_websocket_ip, go_cqhttp_ws_websocket_port, go_cqhttp_http_api_http_api_ip, go_cqhttp_http_api_http_api_port, plugin_admin = load_config()

@@ -5,15 +5,13 @@ import asyncio
 
 from API.api_log import Log, LogSP
 from API.api_thread import start_thread
-from API.api_qq import QQApi
 from init.main_init import main_init
-from API.api_find_plugin import list_plugins
-from framework.go_cqhttp import connect_to_go_cqhttp_server
 
 
 if __name__ == '__main__':
     # 初始化
     main_init()
+    from framework.go_cqhttp import connect_to_go_cqhttp_server
     LogSP.initialize("正在准备连接框架...")
 
     # 设置Ctrl+C的信号处理函数
