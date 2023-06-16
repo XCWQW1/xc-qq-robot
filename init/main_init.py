@@ -27,6 +27,9 @@ def main_init():
         config.set("go-cqhttp", "websocket_port", "8080")
         config.set("go-cqhttp", "http_api_ip", "127.0.0.1")
         config.set("go-cqhttp", "http_api_port", "5700")
+        config.add_section("plugin_admin")
+        config.set("plugin_admin", "admin_qq", "3539757707")
+        config.set("plugin_admin", "unload_plugin", "")
         with open(config_path, "w") as f:
             config.write(f)
         LogSP.initialize(f'配置文件 {config_path} 不存在，已自动创建')
