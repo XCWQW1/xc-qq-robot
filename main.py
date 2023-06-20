@@ -39,7 +39,7 @@ if __name__ == '__main__':
         elif framework[0] == "icqq":
             Log.error("error", "我不会，长大后再制作")
     else:
-        Log.error("error", "您输入的框架名不存在或未对接")
+        Log.error("error", "您输入的框架名不存在")
 
 
 '''

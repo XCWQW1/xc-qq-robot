@@ -175,3 +175,14 @@ class QQApi:
         @return:
         """
         request = requests.get(url=cqhttp_url + f"set_group_ban?group_id={q_group_id}&user_id={q_user_id}&duration={duration}")
+
+    @staticmethod
+    def set_group_name(q_group_id, group_name):
+        """
+        更改群名
+        @param q_group_id:群号
+        @param group_name:目标群名
+        @return:
+        """
+        request = requests.get(url=cqhttp_url + f"set_group_name?group_id={q_group_id}&group_name={group_name}").json()
+        print(request)
