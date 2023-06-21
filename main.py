@@ -3,12 +3,18 @@ import sys
 import time
 import asyncio
 
+from art import text2art
+
 from API.api_log import Log, LogSP
 from API.api_thread import start_thread
 from init.main_init import main_init
+from colorama import init, Fore, Style
 
+# 初始化colorama
+init()
 
 if __name__ == '__main__':
+    print(Fore.GREEN + text2art('XCBOT') + Style.RESET_ALL)
     # 初始化
     main_init()
     from framework.go_cqhttp import connect_to_go_cqhttp_server
