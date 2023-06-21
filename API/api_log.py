@@ -1,7 +1,6 @@
 import os
 import time
 
-from API.api_cq import cq_replace
 from colorama import init, Fore, Style
 
 # 初始化colorama
