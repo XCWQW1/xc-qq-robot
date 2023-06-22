@@ -14,7 +14,18 @@ from colorama import init, Fore, Style
 init()
 
 if __name__ == '__main__':
-    print(Fore.GREEN + text2art('XCBOT') + Style.RESET_ALL)
+    current_time = time.time()
+    now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(current_time))
+    art_text = text2art('XCBOT')
+
+    # 拆分艺术字的每一行，并在每行前面添加当前时间
+    art_lines = art_text.split('\n')
+    art_with_time = [f"[{now_time}] [初始]" + ' ' + line for line in art_lines]
+
+    # 将带有时间的每行重新组合成一个字符串
+    result = '\n'.join(art_with_time)
+
+    print(Fore.GREEN + result + Style.RESET_ALL)
     # 初始化
     main_init()
     from framework.go_cqhttp import connect_to_go_cqhttp_server
@@ -22,9 +33,9 @@ if __name__ == '__main__':
 
     # 设置Ctrl+C的信号处理函数
     def signal_handler(sig, frame):
-        current_time = time.time()
-        now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(current_time))
-        logs = f"[{now_time}] [信息] 程序已关闭"
+        current_time_1 = time.time()
+        now_time_1 = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(current_time_1))
+        logs = f"[{now_time_1}] [信息] 程序已关闭"
         LogSP.print_log(logs)
         start_thread(func=LogSP.save_log, args=(logs,))
         sys.exit(0)
