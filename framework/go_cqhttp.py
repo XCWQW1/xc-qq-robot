@@ -10,8 +10,6 @@ from API.api_log import Log
 from API.api_qq import QQApi
 from API.api_thread import start_thread
 
-# from main_plugin.main_plugin_admin import m_plugin_admin
-
 
 def load_config():
     # 配置文件路径
@@ -105,10 +103,7 @@ def process_message(data, plugin_list, name_list):
         start_thread(func=Log.group_leave,
                      args=(q_sub_type, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname))
 
-    # 处理机器人功能
-    # unload_plugin = start_thread(func=m_plugin_admin, args=(plugin_admin, name_list, q_post_type, q_message_type, q_message, q_group_id, q_user_id, q_message_id))
-    # 遍历插件目录
-    for plugin, name in zip(plugin_list, name_list):
+    for index, (plugin, name) in enumerate(zip(plugin_list, name_list)):
         try:
             start_thread(func=plugin, args=(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_group_name, q_nickname, q_card, q_user_id, q_message_id, q_group_member_flag, q_group_member_comment, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname, q_group_member_operator_id, q_group_member_operator_nickname, data))
         except Exception as e:
