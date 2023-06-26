@@ -8,7 +8,7 @@ import websockets
 from API.api_find_plugin import list_plugins
 from API.api_log import Log
 from API.api_qq import QQApi
-from API.api_thread import start_thread
+from API.api_thread import start_thread, start_process
 
 
 def load_config():
@@ -132,7 +132,7 @@ async def connect_to_go_cqhttp_server():
                         plugin_list, name_list = list_plugins()
                     else:
                         # 使用新线程处理其他类型的消息
-                        start_thread(process_message, (data, plugin_list, name_list))
+                        start_process(process_message, (data, plugin_list, name_list))
         except Exception as e:
             Log.error(error_txt=f'websocket服务连接失败，错误信息：{e}', q_message_type="error")
             retry_count -= 1

@@ -1,6 +1,8 @@
+import html
 import os
 import time
 
+from API.api_cq import replace_cq_content
 from colorama import init, Fore, Style
 
 # 初始化colorama
@@ -71,13 +73,13 @@ class Log:
         # 判断私聊还是群发
         if q_message_type == "group":
             # 设置群日志内容
-            logs = f"[{Log.now_time()}] [信息] [群] [接收] [{q_group_name}({q_group_id})] [{q_nickname}-{q_user_id}({q_card})] : {q_message} ({q_message_id})"
+            logs = f"[{Log.now_time()}] [信息] [群] [接收] [{q_group_name}({q_group_id})] [{q_nickname}-{q_user_id}({q_card})] : {replace_cq_content(html.unescape(q_message))} ({q_message_id})"
             # 显示日志
             print(logs)
             LogSP.save_log(logs)
         elif q_message_type == "private":
             # 设置群日志内容
-            logs = f"[{Log.now_time()}] [信息] [私] [接收] [{q_nickname}-{q_user_id}] : {q_message} ({q_message_id})"
+            logs = f"[{Log.now_time()}] [信息] [私] [接收] [{q_nickname}-{q_user_id}] : {replace_cq_content(html.unescape(q_message))} ({q_message_id})"
             # 显示日志
             print(logs)
             LogSP.save_log(logs)
@@ -111,13 +113,13 @@ class Log:
         # 判断私聊还是群发
         if q_message_type == "group":
             # 设置日志内容
-            logs = f"[{Log.now_time()}] [信息] [群] [发送] {send_msg} ({q_message_id}) -> [{q_group_name}({q_group_id})] "
+            logs = f"[{Log.now_time()}] [信息] [群] [发送] {replace_cq_content(send_msg)} ({q_message_id}) -> [{q_group_name}({q_group_id})] "
             # 显示日志
             print(logs)
             LogSP.save_log(logs)
         elif q_message_type == "private":
             # 设置日志内容
-            logs = f"[{Log.now_time()}] [信息] [私] [发送] {send_msg} ({q_message_id}) -> [{q_user_name}({q_user_id})] "
+            logs = f"[{Log.now_time()}] [信息] [私] [发送] {replace_cq_content(send_msg)} ({q_message_id}) -> [{q_user_name}({q_user_id})] "
             # 显示日志
             print(logs)
             LogSP.save_log(logs)

@@ -40,53 +40,56 @@ class QQApi:
         import urllib.parse
         z_send_msg = urllib.parse.quote(send_msg)
         if q_message_type == "group":
-            # 发送信息
-            response = requests.get(url=cqhttp_url + f"send_msg?group_id={q_group_id}&message={z_send_msg}&auto_escape={auto_escape}").text
+            try:
+                # 发送信息
+                response = requests.get(
+                    url=cqhttp_url + f"send_msg?group_id={q_group_id}&message={z_send_msg}&auto_escape={auto_escape}").json()
 
-            # 转换返回的json为python格式
-            json_send = json.loads(response)
+                # 取消息ID
+                if response["status"] == "failed":
+                    q_message_id = ''
+                else:
+                    q_message_id = str(response.get("data", {}).get("message_id", ""))
 
-            # 取消息ID
-            if json_send["status"] == "failed":
-                q_message_id = ''
-            else:
-                q_message_id = str(json_send.get("data", {}).get("message_id", ""))
+                # 判断消息是否发送成功
+                if response["status"] == "ok":
+                    # 取群名称
+                    q_group_name = QQApi.get_group(q_group_id)
 
-            # 判断消息是否发送成功
-            if json_send["status"] == "ok":
-                # 取群名称
-                q_group_name = QQApi.get_group(q_group_id)
+                    # 发送日志
+                    start_thread(func=Log.send,
+                                 args=(send_msg, q_message_type, q_group_id, q_message_id, q_group_name, q_user_id,))
 
-                # 发送日志
-                start_thread(func=Log.send,
-                             args=(send_msg, q_message_type, q_group_id, q_message_id, q_group_name, q_user_id,))
+                else:
+                    start_thread(func=Log.error,
+                                 args=(q_message_type, "消息发送失败，可能消息过长也可能是被腾讯吞了或者帐号被冻结"))
+                    requests.get(url=cqhttp_url + f"send_msg?group_id={q_group_id}&message=消息发送失败")
 
-            else:
-                start_thread(func=Log.error,
-                             args=(q_message_type, "消息发送失败，可能消息过长也可能是被腾讯吞了或者帐号被冻结"))
-                requests.get(url=cqhttp_url + f"send_msg?group_id={q_group_id}&message=消息发送失败")
-
-            # 返回消息ID
-            return q_message_id
+                # 返回消息ID
+                return q_message_id
+            except json.JSONDecodeError:
+                return None
         elif q_message_type == "private":
-            # 发送信息
-            response = requests.get(url=cqhttp_url + f"send_msg?user_id={q_user_id}&message={z_send_msg}&auto_escape={auto_escape}").text
+            try:
+                # 发送信息
+                response = requests.get(
+                    url=cqhttp_url + f"send_msg?user_id={q_user_id}&message={z_send_msg}&auto_escape={auto_escape}").json()
 
-            # 吧json转换为python格式
-            json_send = json.loads(response)
+                # 判断类是否存在 存在则吧变量设置为类的值 不存在则设置为空
+                # 取消息ID
+                q_message_id = str(response.get("data", {}).get("message_id", ""))
 
-            # 判断类是否存在 存在则吧变量设置为类的值 不存在则设置为空
-            # 取消息ID
-            q_message_id = str(json_send.get("data", {}).get("message_id", ""))
-
-            # 判断消息是否发送成功
-            if json_send["status"] == "ok":
-                # 发送日志
-                start_thread(func=Log.send,
-                             args=(send_msg, q_message_type, q_group_id, q_message_id, q_user_name, q_user_id))
-            else:
-                start_thread(func=Log.error,
-                             args=(q_message_type, "消息发送失败，可能被腾讯吞了或者帐号被冻结"))
+                # 判断消息是否发送成功
+                if response["status"] == "ok":
+                    # 发送日志
+                    start_thread(func=Log.send,
+                                 args=(send_msg, q_message_type, q_group_id, q_message_id, q_user_name, q_user_id))
+                else:
+                    start_thread(func=Log.error,
+                                 args=(q_message_type, "消息发送失败，可能被腾讯吞了或者帐号被冻结"))
+                return q_message_id
+            except json.JSONDecodeError:
+                return None
 
     # 取群信息
     @staticmethod
