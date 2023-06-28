@@ -111,7 +111,7 @@ def process_message(data, plugin_list, name_list):
 
 
 async def connect_to_go_cqhttp_server():
-    retry_count = 5  # 最大重试次数
+    retry_count = 50  # 最大重试次数
     retry_delay = 5  # 每次重试等待时间（秒）
     while retry_count > 0:
         try:
