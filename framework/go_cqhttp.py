@@ -6,11 +6,9 @@ import re
 import websockets
 
 from API.api_find_plugin import list_plugins
-from API.api_log import Log
+from API.api_log import Log, LogSP
 from API.api_qq import QQApi
-from API.api_thread import start_thread
-
-# from main_plugin.main_plugin_admin import m_plugin_admin
+from API.api_thread import start_thread, start_process
 
 
 def load_config():
@@ -105,10 +103,7 @@ def process_message(data, plugin_list, name_list):
         start_thread(func=Log.group_leave,
                      args=(q_sub_type, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname))
 
-    # 处理机器人功能
-    # unload_plugin = start_thread(func=m_plugin_admin, args=(plugin_admin, name_list, q_post_type, q_message_type, q_message, q_group_id, q_user_id, q_message_id))
-    # 遍历插件目录
-    for plugin, name in zip(plugin_list, name_list):
+    for index, (plugin, name) in enumerate(zip(plugin_list, name_list)):
         try:
             start_thread(func=plugin, args=(q_sub_type, q_post_type, q_message_type, q_message, q_group_id, q_group_name, q_nickname, q_card, q_user_id, q_message_id, q_group_member_flag, q_group_member_comment, q_group_member_group_id, q_group_member_user_id, q_group_member_user_nickname, q_group_member_operator_id, q_group_member_operator_nickname, data))
         except Exception as e:
@@ -116,8 +111,10 @@ def process_message(data, plugin_list, name_list):
 
 
 async def connect_to_go_cqhttp_server():
-    retry_count = 5  # 最大重试次数
+    retry_count = 50  # 最大重试次数
     retry_delay = 5  # 每次重试等待时间（秒）
+    plugin_list, name_list = list_plugins()
+    LogSP.initialize("正在尝试对接 go-cqhttp 框架...")
     while retry_count > 0:
         try:
             async with websockets.connect(f'ws://{go_cqhttp_ws_websocket_ip}:{go_cqhttp_ws_websocket_port}') as websocket:
@@ -132,20 +129,54 @@ async def connect_to_go_cqhttp_server():
                             "meta_event_type") == "lifecycle" and data.get("sub_type") == "connect":
                         # 如果收到连接成功的消息，输出提示信息
                         user_z = data["self_id"]
-                        Log.initialize("websocket服务连接成功！")
+                        Log.initialize("对接 go-cqhttp 框架成功！")
                         Log.initialize(f"当前登陆的机器人账号为：{user_z}")
-                        plugin_list, name_list = list_plugins()
                     else:
-                        # 使用新线程处理其他类型的消息
-                        start_thread(process_message, (data, plugin_list, name_list))
-        except Exception as e:
-            Log.error(error_txt=f'websocket服务连接失败，错误信息：{e}', q_message_type="error")
+                        # 使用新进程处理其他类型的消息
+                        start_process(process_message, (data, plugin_list, name_list))
+        except websockets.ConnectionClosed as e:
+            Log.error(error_txt=f'对 go-cqhttp 框架的连接失败，错误码: {e.code}, 原因: {e.reason}', q_message_type="error")
             retry_count -= 1
             if retry_count > 0:
                 Log.initialize(f'{retry_delay}秒后重试...')
                 await asyncio.sleep(retry_delay)
             else:
-                Log.error(error_txt='websocket服务连接失败，已达最大重试次数，程序退出', q_message_type="error")
+                Log.error(error_txt='对 go-cqhttp 框架的连接失败，已达最大重试次数，程序退出', q_message_type="error")
+        except websockets.ConnectionClosedOK:
+            Log.error('error', "对 go-cqhttp 框架的连接被主机关闭")
+            retry_count -= 1
+            if retry_count > 0:
+                Log.initialize(f'{retry_delay}秒后重试...')
+                await asyncio.sleep(retry_delay)
+            else:
+                Log.error('error', "对 go-cqhttp 框架的被主机关闭")
+        except websockets.ConnectionClosedError as e:
+            Log.error('error', f"对 go-cqhttp 框架的连接非正常关闭关闭，错误码: {e.code}, 原因: {e.reason}")
+            retry_count -= 1
+            if retry_count > 0:
+                Log.initialize(f'{retry_delay}秒后重试...')
+                await asyncio.sleep(retry_delay)
+            else:
+                Log.error('error', f"对 go-cqhttp 框架的连接非正常关闭关闭，错误码: {e.code}, 原因: {e.reason}")
+                break
+        except websockets.ConnectionClosed as e:
+            Log.error('error', f"对 go-cqhttp 框架的连接已断开，代码: {e.code}, 原因: {e.reason}")
+            retry_count -= 1
+            if retry_count > 0:
+                Log.initialize(f'{retry_delay}秒后重试...')
+                await asyncio.sleep(retry_delay)
+            else:
+                Log.error('error', f"对 go-cqhttp 框架的连接已断开，代码: {e.code}, 原因: {e.reason}")
+                break
+        except Exception as e:
+            Log.error('error', "对 go-cqhttp 框架通信时发生未知错误 :" + str(e))
+            retry_count -= 1
+            if retry_count > 0:
+                Log.initialize(f'{retry_delay}秒后重试...')
+                await asyncio.sleep(retry_delay)
+            else:
+                Log.error('error', "对 go-cqhttp 框架通信时发生未知错误 :" + str(e))
+                break
 
 
 if __import__:

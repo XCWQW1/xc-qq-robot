@@ -1,4 +1,5 @@
-import os
+import base64
+import io
 import random
 import time
 
@@ -22,8 +23,14 @@ def draw(txt, x, y, q_message_type, q_message_id, q_group_id, q_user_id):
     # 绘制白色文本
     i1.text((10, 10), txt, font=font, fill='black')
 
-    img.save("API/" + png_number + ".png")
+    # 将图片转换为字节流
+    image_byte_array = io.BytesIO()
+    img.save(image_byte_array, format='PNG')
 
-    start_thread(func=QQApi.send, args=(q_message_type, f"[CQ:cardimage,file=file:///{os.getcwd()}/API/{str(png_number)}.png]", False, q_group_id, q_user_id))
+    # 获取字节流的内容
+    image_bytes = image_byte_array.getvalue()
 
-    os.remove("API/" + png_number + ".png")
+    # 将字节流编码为base64字符串
+    base64_image = base64.b64encode(image_bytes).decode('utf-8')
+
+    start_thread(func=QQApi.send, args=(q_message_type, f"[CQ:cardimage,file=base64://{base64_image}]", False, q_group_id, q_user_id))
